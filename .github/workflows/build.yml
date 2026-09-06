@@ -1,7 +1,7 @@
-name: Deploy Hugo site to Pages
+name: Deploy Hugo Site
 
+# Only run when pushing to default branch
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: [$default-branch]
 
