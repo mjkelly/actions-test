@@ -12,13 +12,12 @@ concurrency:
   group: "hugo"
   cancel-in-progress: false
 
-permissions:
-  id-token: write # Required AWS OIDC
-  contents: read  # Required for actions/checkout
-
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required AWS OIDC
+      contents: read  # Required for actions/checkout
     env:
       HUGO_VERSION: 0.162.0
     steps:
