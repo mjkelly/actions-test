@@ -15,25 +15,38 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-deploy:
     runs-on: ubuntu-latest
     env:
       HUGO_VERSION: 0.162.0
     steps:
-      - name: Install Hugo CLI
+      - name: Install Hugo
         run: |
-          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
+          wget -q -O ${{ runner.temp }}/hugo.deb \
+          https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
           && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+
       - name: Checkout
         uses: actions/checkout@v7
         with:
           submodules: recursive
-      - name: hugo build
+
+      - name: Build Site
         env:
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
           HUGO_ENVIRONMENT: production
         run: |
           cd site && hugo --minify
-      - name: deploy
+
+      # Authenticate with AWS using OIDC.
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.4
+        with:
+          role-to-assume: arn:aws:iam::817536375942:role/github-actions-push-static-website
+          aws-region: us-east-1
+
+      # Use AWS CLI directly. It is pre-installed.
+      - name: Run AWS CLI Command
         run: |
-          echo "This is where we would deploy."
+          aws s3 ls s3://scratch.michaelkelly.org/
+          aws sts get-caller-identity
