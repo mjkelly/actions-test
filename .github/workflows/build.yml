@@ -1,18 +1,20 @@
 name: Deploy Hugo Site
 
-# Only run when pushing to default branch
 on:
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
+  # Allow running workflow manually from the Actions tab
   workflow_dispatch:
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Allow only one concurrent deployment, skipping runs queued between the run
+# in-progress and latest queued. Do NOT cancel in-progress runs.
 concurrency:
   group: "hugo"
   cancel-in-progress: false
+
+permissions:
+  id-token: write # Required AWS OIDC
+  contents: read  # Required for actions/checkout
 
 jobs:
   build-deploy:
@@ -20,6 +22,7 @@ jobs:
     env:
       HUGO_VERSION: 0.162.0
     steps:
+
       - name: Install Hugo
         run: |
           wget -q -O ${{ runner.temp }}/hugo.deb \
