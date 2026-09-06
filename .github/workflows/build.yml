@@ -33,7 +33,7 @@ jobs:
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
           HUGO_ENVIRONMENT: production
         run: |
-          hugo --minify
+          cd site && hugo --minify
       - name: deploy
         run: |
           echo "This is where we would deploy."
