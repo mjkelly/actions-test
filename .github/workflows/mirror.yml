@@ -1,5 +1,5 @@
 # Updated:
-# Mon Sep  7 12:23:49 PM PDT 2026
+# Mon Sep  7 12:35:32 PM PDT 2026
 name: Mirror Repo
 
 on:
@@ -29,12 +29,10 @@ jobs:
           # Required so later steps can connect to the agent
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
           echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> $GITHUB_ENV
-          ssh-add -l
 
       # Add destination to known_hosts to prevent interactive prompts
       - name: Update known_hosts
         run: |
-          ssh-add -l
           umask 077
           mkdir -p ~/.ssh
           ssh-keyscan ${DEST_HOST} >> ~/.ssh/known_hosts
