@@ -1,0 +1,44 @@
+# Updated:
+# Mon Sep  7 12:23:49 PM PDT 2026
+name: Mirror Repo
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+
+env:
+  DEST_USER: mkelly
+  DEST_HOST: git.sr.ht
+
+jobs:
+  mirror_repo:
+    runs-on: ubuntu-latest
+    steps:
+      # Set up ssh agent
+      - name: Set Up SSH Key and Agent
+        env:
+          SSH_KEY: ${{ secrets.CODE_AUTOMATION }}
+        run: |
+          eval $(ssh-agent -s)
+          # The tr newline is some paranoia in case the key came from windows
+          # and contains CR+LF line endings.
+          echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+
+      # Add destination to known_hosts to prevent interactive prompts
+      - name: Update known_hosts
+        run: |
+          umask 077
+          mkdir -p ~/.ssh
+          ssh-keyscan ${DEST_HOST} >> ~/.ssh/known_hosts
+
+      - name: Clone Source Repository
+        run: git clone --bare "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" repo_mirror
+
+      - name: Push Mirror to Target
+        run: |
+          cd repo_mirror
+          git push --mirror "git@${DEST_HOST}:~${DEST_USER}/${{ github.event.repository.name }}"
+
